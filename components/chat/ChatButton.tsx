@@ -8,10 +8,10 @@ export function ChatButton() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-8 right-24 z-50"> {/* Changed to right-24 */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-[#ffd800] text-black p-4 rounded-full shadow-lg hover:bg-[#e6c200] transition-colors"
+        className="bg-[#4FD1C5] text-black p-3 rounded-full shadow-lg hover:bg-[#4FD1C5]/90 transition-colors"
         aria-label={isOpen ? "Close chat" : "Open chat"}
       >
         {isOpen ? (
@@ -21,7 +21,11 @@ export function ChatButton() {
         )}
       </button>
 
-      {isOpen && <ChatWindow />}
+      {isOpen && (
+        <div className="absolute bottom-16 right-0"> {/* Changed positioning to right */}
+          <ChatWindow />
+        </div>
+      )}
     </div>
   );
 }

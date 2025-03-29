@@ -2,36 +2,38 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, Mail, User } from "lucide-react";
+import { Bell, Mail, User, SendHorizontal } from "lucide-react";
 import Link from "next/link";
+import ReactMarkdown from 'react-markdown';
+
+type Message = {
+  role: 'user' | 'assistant';
+  content: string;
+};
 
 export default function Dashboard() {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: 'assistant',
+      content: "Hello! I'm your TURN2LAW legal assistant. How can I help you today?",
+    },
+  ]);
 
   const profileRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  // Sample search suggestions
-  const helpTopics = [
-    "How to create a case?",
-    "How to contact a lawyer?",
-    "Legal document templates",
-    "Payment issues",
-    "Privacy policy"
-  ];
-
-  // Update suggestions based on search query
+  // Scroll to bottom of chat when new messages are added
   useEffect(() => {
-    if (searchQuery.length > 0) {
-      setSuggestions(helpTopics.filter(topic => topic.toLowerCase().includes(searchQuery.toLowerCase())));
-    } else {
-      setSuggestions([]);
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-  }, [searchQuery]);
+  }, [messages]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -48,6 +50,52 @@ export default function Dashboard() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+
+    try {
+      setIsLoading(true);
+      
+      // Add user message
+      const userMessage = { role: 'user', content: input };
+      setMessages((prev) => [...prev, userMessage]);
+      setInput('');
+
+      // Send request to API
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [...messages, userMessage],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+
+      const data = await response.json();
+      
+      // Add assistant's response
+      setMessages((prev) => [...prev, data]);
+
+    } catch (error) {
+      console.error('Chat error:', error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: 'I apologize, but I encountered an error. Please try again.',
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col">
@@ -85,12 +133,12 @@ export default function Dashboard() {
             {showProfileDropdown && (
               <div className="absolute right-0 mt-2 w-48 bg-gray-800 shadow-lg rounded-lg p-3 z-50">
                 <ul className="text-sm space-y-2">
-                  <li
-                    className="hover:bg-gray-700 p-2 rounded cursor-pointer"
-                    onClick={() => router.push("/profile")}
-                  >
-                    Profile
-                  </li>
+                <li
+  className="hover:bg-gray-700 p-2 rounded cursor-pointer"
+  onClick={() => router.push("/profile")}
+>
+  Profile
+</li>
                   <li
                     className="hover:bg-gray-700 p-2 rounded cursor-pointer"
                     onClick={() => router.push("/settings")}
@@ -114,32 +162,64 @@ export default function Dashboard() {
       <div className="flex-1 flex flex-col items-center justify-center px-4">
         <h1 className="text-3xl font-semibold mb-4 text-teal-400">How can we help you?</h1>
 
-        {/* Search Box */}
-        <div className="relative w-96">
-          <input
-            type="text"
-            placeholder="Search for help..."
-            className="w-full p-3 border rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          {/* Search Suggestions */}
-          {suggestions.length > 0 && (
-            <ul className="absolute w-full mt-2 bg-gray-800 rounded-lg shadow-lg z-50">
-              {suggestions.map((suggestion, index) => (
-                <li
-                  key={index}
-                  className="p-2 hover:bg-gray-700 cursor-pointer text-gray-300"
-                  onClick={() => {
-                    setSearchQuery(suggestion);
-                    setSuggestions([]);
-                  }}
+        {/* Chat Box */}
+        <div className="w-full max-w-2xl bg-gray-800 rounded-lg shadow-xl overflow-hidden">
+          {/* Chat Messages */}
+          <div 
+            ref={chatContainerRef}
+            className="h-[400px] overflow-y-auto p-4 space-y-4"
+          >
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex ${
+                  message.role === 'user' ? 'justify-end' : 'justify-start'
+                }`}
+              >
+                <div
+                  className={`max-w-[80%] rounded-lg p-3 ${
+                    message.role === 'user'
+                      ? 'bg-teal-600 text-white'
+                      : 'bg-gray-700 text-white'
+                  }`}
                 >
-                  {suggestion}
-                </li>
-              ))}
-            </ul>
-          )}
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
+                </div>
+              </div>
+            ))}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-gray-700 text-white rounded-lg p-3">
+                  <div className="flex space-x-2">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100" />
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200" />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Input Form */}
+          <form onSubmit={handleSubmit} className="p-4 border-t border-gray-700">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask your legal question..."
+                className="flex-1 p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-400"
+                disabled={isLoading}
+              />
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="bg-teal-500 text-white p-3 rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50"
+              >
+                <SendHorizontal className="w-5 h-5" />
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
