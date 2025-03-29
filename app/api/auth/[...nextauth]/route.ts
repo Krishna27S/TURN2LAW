@@ -1,12 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { createClient } from "@supabase/supabase-js";
-import bcrypt from "bcryptjs";
-
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
+import { auth } from "@/lib/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const authOptions = {
   providers: [
@@ -21,24 +16,23 @@ const authOptions = {
           throw new Error("Missing email or password");
         }
 
-        // Fetch user from Supabase
-        const { data: user, error } = await supabase
-          .from("users")
-          .select("*")
-          .eq("email", credentials.email)
-          .single();
-
-        if (error || !user) {
-          throw new Error("User not found");
-        }
-
-        // Compare password
-        const isValidPassword = await bcrypt.compare(credentials.password, user.password);
-        if (!isValidPassword) {
+        try {
+          const userCredential = await signInWithEmailAndPassword(
+            auth,
+            credentials.email,
+            credentials.password
+          );
+          
+          const user = userCredential.user;
+          
+          return {
+            id: user.uid,
+            email: user.email,
+            name: user.displayName,
+          };
+        } catch (error) {
           throw new Error("Invalid credentials");
         }
-
-        return { id: user.id, name: user.name, email: user.email };
       },
     }),
   ],

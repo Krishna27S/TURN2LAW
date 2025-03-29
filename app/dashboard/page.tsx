@@ -99,7 +99,7 @@ export default function Dashboard() {
                   </li>
                   <li
                     className="hover:bg-red-600 p-2 rounded cursor-pointer text-red-300"
-                    onClick={() => router.push("/logout")}
+                    onClick={() => router.push("/")}
                   >
                     Logout
                   </li>

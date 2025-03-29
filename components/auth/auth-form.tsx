@@ -9,7 +9,7 @@ interface AuthFormProps {
 }
 
 export function AuthForm({ type }: AuthFormProps) {
-  const [name, setName] = useState(""); // Added name field
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,39 +21,50 @@ export function AuthForm({ type }: AuthFormProps) {
     setError("");
     setLoading(true);
 
-    if (type === "signup") {
-      // Call signup API
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
+    try {
+      if (type === "signup") {
+        // Call signup API
+        const res = await fetch("/api/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password }),
+        });
 
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Failed to sign up");
-        setLoading(false);
-        return;
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Failed to sign up");
+        }
+
+        // Auto sign in after successful signup
+        const signInResult = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        });
+
+        if (signInResult?.error) {
+          throw new Error(signInResult.error);
+        }
+
+        router.push("/dashboard");
+      } else {
+        // Sign-in logic
+        const result = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        });
+
+        if (result?.error) {
+          throw new Error(result.error);
+        }
+
+        router.push("/dashboard");
       }
-
-      // Auto sign in after successful signup
-      await signIn("credentials", { email, password, redirect: false });
-      router.push("/dashboard");
-    } else {
-      // Sign-in logic
-      const res = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-
-      if (res?.error) {
-        setError("Invalid email or password");
-        setLoading(false);
-        return;
-      }
-
-      router.push("/dashboard");
+    } catch (err: any) {
+      setError(err.message || "An error occurred");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -68,6 +79,7 @@ export function AuthForm({ type }: AuthFormProps) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="border p-2 rounded-md bg-gray-800 text-white"
+          required
         />
       )}
       
@@ -77,6 +89,7 @@ export function AuthForm({ type }: AuthFormProps) {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         className="border p-2 rounded-md bg-gray-800 text-white"
+        required
       />
       <input
         type="password"
@@ -84,6 +97,7 @@ export function AuthForm({ type }: AuthFormProps) {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         className="border p-2 rounded-md bg-gray-800 text-white"
+        required
       />
       
       <button
