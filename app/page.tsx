@@ -8,8 +8,15 @@ import { Textarea } from "@/components/ui/textarea"
 import { Mail, Scale, Shield, Clock, ChevronRight, ArrowUp, Linkedin, Instagram, Twitter } from "lucide-react"
 import Link from "next/link"
 import { FaqAndTimeline } from "@/components/faq-and-timeline"
+import { ChevronDown } from "lucide-react" 
 import { DynamicTestimonials } from "@/components/testimonials/dynamic-testimonials"
 import Image from "next/image"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu" 
 
 // Content data for Know About Us section
 const knowAboutUsContent = {
@@ -63,31 +70,81 @@ export default function Page() {
         </div>
       </div>
       {/* Navigation */}
-      <nav className="container mx-auto px-4 py-6 flex items-center justify-between">
-        <div className="flex items-center space-x-6">
-        <Image src="/logot2l.png" alt="Turn2Law Logo" width={40} height={40} />
-          <span className="text-xl font-bold">Turn2Law</span>
-          <div className="hidden md:flex space-x-10">
-            <Link href="/consult" className="hover:text-gray-300">
-              Consult
-            </Link>
-            <Link href="/resources" className="hover:text-gray-300">
-              Resources
-            </Link>
-            <Link href="/pricing" className="hover:text-gray-300">
-              Pricing
-            </Link>
-          </div>
+      <nav className="bg-black/90 backdrop-blur-sm border-b border-gray-800 sticky top-0 z-50">
+  <div className="container mx-auto px-4">
+    <div className="flex items-center justify-between h-16">
+      {/* Logo and Brand */}
+      <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
+          <Image 
+            src="/logot2l.png" 
+            alt="Turn2Law Logo" 
+            width={40} 
+            height={40}
+            className="rounded-lg"
+          />
+          <span className="text-xl font-bold bg-gradient-to-r from-[#4FD1C5] to-[#ECC94B] text-transparent bg-clip-text">
+            Turn2Law
+          </span>
         </div>
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" className="text-white hover:text-gray-300" asChild>
-            <Link href="/sign-in">Login</Link>
-          </Button>
-          <Button className="bg-[#4FD1C5] hover:bg-[#4FD1C5]/90 text-black" asChild>
-            <Link href="/sign-up">Sign up</Link>
-          </Button>
+        
+        {/* Desktop Navigation Links */}
+        <div className="hidden md:flex items-center space-x-8 ml-8">
+          <Link 
+            href="/consult" 
+            className="text-gray-300 hover:text-[#4FD1C5] transition-colors duration-200 px-3 py-2 rounded-md text-sm font-medium"
+          >
+            Consult
+          </Link>
+          <Link 
+            href="/resources" 
+            className="text-gray-300 hover:text-[#4FD1C5] transition-colors duration-200 px-3 py-2 rounded-md text-sm font-medium"
+          >
+            Resources
+          </Link>
+          <Link 
+            href="/pricing" 
+            className="text-gray-300 hover:text-[#4FD1C5] transition-colors duration-200 px-3 py-2 rounded-md text-sm font-medium"
+          >
+            Pricing
+          </Link>
         </div>
-      </nav>
+      </div>
+
+      {/* Right Side - Actions with Dropdown */}
+      <div className="flex items-center space-x-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              className="bg-gradient-to-r from-[#4FD1C5] to-[#4FD1C5]/80 text-black font-medium px-4 py-2 rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2"
+            >
+              Get Started
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-40 bg-gray-900 border border-gray-800">
+            <DropdownMenuItem className="focus:bg-gray-800">
+              <Link 
+                href="/sign-in" 
+                className="w-full text-gray-300 hover:text-[#4FD1C5] transition-colors"
+              >
+                Sign In
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="focus:bg-gray-800">
+              <Link 
+                href="/sign-up" 
+                className="w-full text-gray-300 hover:text-[#4FD1C5] transition-colors"
+              >
+                Sign Up
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
+  </div>
+</nav>
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-12 md:py-24">

@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { Inter } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
-import Navbar from "../components/Navbar";
+// import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { ChatButton } from "@/components/chat/ChatButton";
 import "./globals.css";
@@ -15,7 +15,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body className={`${inter.className} min-h-screen bg-black flex flex-col`}>
         <SessionProvider>
-          <Navbar />
+          {/* <Navbar /> */}
           <main className="flex-grow p-6">{children}</main>
           <ChatButton />
           <Footer />
