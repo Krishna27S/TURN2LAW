@@ -210,7 +210,7 @@ export default function DiscoverPage() {
             </Button>
           </div>
 
-          {/* <div className="space-y-6">
+          { <div className="space-y-6">
             <h2 className={isDark ? "text-gray-400" : "text-gray-600"}>discover</h2>
             <div className="space-y-4">
               <p className={isDark ? "text-gray-400" : "text-gray-600"}>
@@ -232,7 +232,7 @@ export default function DiscoverPage() {
               <p className={isDark ? "text-gray-400" : "text-gray-600"}>give it a try.</p>
               <p className={isDark ? "text-gray-400" : "text-gray-600"}>see you in a search soon.</p>
             </div>
-          </div> */}
+          </div> }
 
           <div className="space-y-2">
             <Button
