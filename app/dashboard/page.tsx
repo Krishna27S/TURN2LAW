@@ -100,22 +100,21 @@ export default function Dashboard() {
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to send message');
+        throw new Error(data.error || 'Failed to send message');
       }
 
-      const data = await response.json();
-      
       // Add assistant's response
       setMessages((prev) => [...prev, data]);
-
-    } catch (error) {
+    } catch (error: any) {
       console.error('Chat error:', error);
       setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
-          content: 'I apologize, but I encountered an error. Please try again.',
+          content: error.message || 'I apologize, but I encountered an error. Please try again.',
         },
       ]);
     } finally {
