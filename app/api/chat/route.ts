@@ -1,17 +1,20 @@
 import OpenAI from 'openai';
 import { NextResponse } from 'next/server';
 
-// Check if API key exists before initializing
-if (!process.env.OPENAI_API_KEY_1) {
-  throw new Error('Missing OpenAI API key. Please add OPENAI_API_KEY_1 to your environment variables.');
-}
-
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY_1 || ''
+  apiKey: process.env.OPENAI_API_KEY_1
 });
 
 export async function POST(req: Request) {
   try {
+    // Check API key within the handler instead of at initialization
+    if (!process.env.OPENAI_API_KEY_1) {
+      return NextResponse.json(
+        { error: "OpenAI API key not configured" },
+        { status: 500 }
+      );
+    }
+
     const { messages } = await req.json();
 
     if (!messages) {
@@ -21,7 +24,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Add system message for legal context
     const systemMessage = {
       role: 'system',
       content: 'You are a legal assistant for TURN2LAW, providing accurate information about Indian law.'
@@ -37,8 +39,7 @@ export async function POST(req: Request) {
     return NextResponse.json(completion.choices[0].message);
   } catch (error: any) {
     console.error('OpenAI API Error:', error);
-
-    // Handle specific error cases
+    
     if (error.code === 'insufficient_quota') {
       return NextResponse.json(
         { error: "API quota exceeded. Please try again later." },
