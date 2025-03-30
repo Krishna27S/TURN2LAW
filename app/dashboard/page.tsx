@@ -13,7 +13,29 @@ type Message = {
   content: string;
 };
 
+interface DashboardItem {
+  title: string;
+  description: string;
+}
 
+const dashboardItems: DashboardItem[] = [
+  {
+    title: "Recent Consultations",
+    description: "Track your recent legal consultations and their status",
+  },
+  {
+    title: "Documents",
+    description: "Access and manage your legal documents",
+  },
+  {
+    title: "Upcoming Appointments",
+    description: "View and manage your scheduled consultations",
+  },
+  {
+    title: "Legal Resources",
+    description: "Access legal guides, templates and resources",
+  }
+];
 
 export default function Dashboard() {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
