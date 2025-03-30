@@ -83,18 +83,14 @@ export default function Dashboard() {
 
     try {
       setIsLoading(true);
-
-      // Add user message
+      
       const userMessage = { role: 'user', content: input };
       setMessages((prev) => [...prev, userMessage]);
       setInput('');
 
-      // Send request to API
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [...messages, userMessage],
         }),
@@ -106,7 +102,6 @@ export default function Dashboard() {
         throw new Error(data.error || 'Failed to send message');
       }
 
-      // Add assistant's response
       setMessages((prev) => [...prev, data]);
     } catch (error: any) {
       console.error('Chat error:', error);
@@ -114,7 +109,7 @@ export default function Dashboard() {
         ...prev,
         {
           role: 'assistant',
-          content: error.message || 'I apologize, but I encountered an error. Please try again.',
+          content: 'I apologize, but I encountered an error. Please try again later.',
         },
       ]);
     } finally {
